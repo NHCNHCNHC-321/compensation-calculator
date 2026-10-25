@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة التعويض عن تأخير تسليم الوحدة</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #0d7a5f;
+    --primary-dark: #0a5c48;
+    --primary-light: #e6f4f0;
+    --bg: #f4f6f5;
+    --card: #ffffff;
+    --text: #1f2d2a;
+    --muted: #6b7a76;
+    --border: #dde5e2;
+    --danger: #c0392b;
+  }
+
+  body {
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: #fff;
+    padding: 2.2rem 1rem;
+    text-align: center;
+  }
+
+  header h1 { font-size: 1.6rem; font-weight: 800; }
+  header p { opacity: .85; margin-top: .3rem; font-size: .95rem; }
+
+  main {
+    max-width: 720px;
+    margin: -1.2rem auto 2rem;
+    padding: 0 1rem;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.07);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card h2 {
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .field label {
+    display: block;
+    font-weight: 700;
+    font-size: .88rem;
+    margin-bottom: .35rem;
+  }
+
+  .field .hint { font-size: .75rem; color: var(--muted); margin-top: .25rem; }
+
+  input[type="number"], input[type="date"] {
+    width: 100%;
+    padding: .65rem .75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--text);
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13,122,95,.12);
+  }
+
+  .input-wrap { position: relative; }
+  .input-wrap .unit {
+    position: absolute;
+    left: .75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: .85rem;
+    pointer-events: none;
+  }
+  .input-wrap input { padding-left: 3.2rem; }
+
+  .no-delay-note {
+    background: #fff8e6;
+    border: 1px solid #f0dfa8;
+    color: #8a6d1a;
+    border-radius: 9px;
+    padding: .6rem .9rem;
+    font-size: .85rem;
+    margin-top: .75rem;
+    display: none;
+  }
+
+  .error-note {
+    background: #fdecea;
+    border: 1px solid #f5c6c0;
+    color: var(--danger);
+    border-radius: 9px;
+    padding: .6rem .9rem;
+    font-size: .85rem;
+    margin-top: .75rem;
+    display: none;
+  }
+
+  .result-box {
+    display: none;
+  }
+
+  .result-main {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat {
+    background: var(--primary-light);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); }
+
+  .stat.total {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: #fff;
+  }
+  .stat.total .num { color: #fff; font-size: 1.7rem; }
+
+  .stat .lbl { font-size: .82rem; opacity: .8; }
+  .stat .num small { font-size: .85rem; font-weight: 500; }
+
+  table.details {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .92rem;
+  }
+  table.details td {
+    padding: .55rem .25rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  table.details tr:last-child td { border-bottom: none; }
+  table.details td:last-child { text-align: left; font-weight: 700; white-space: nowrap; }
+  table.details .formula { color: var(--muted); font-size: .78rem; display: block; }
+
+  .print-btn {
+    display: none;
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: .8rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--text);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #000; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: .78rem;
+    padding: 1rem;
+  }
+
+  @media (max-width: 560px) {
+    .grid, .result-main { grid-template-columns: 1fr; }
+  }
+
+  /* ====== الطباعة ====== */
+  .print-header { display: none; }
+
+  @media print {
+    body { background: #fff; }
+    header, .no-print, footer { display: none !important; }
+    main { max-width: 100%; margin: 0; padding: 0; }
+    .card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+      border-radius: 0;
+      page-break-inside: avoid;
+    }
+    .print-header { display: block; text-align: center; margin-bottom: 1.5rem; }
+    .print-header h1 { font-size: 1.3rem; }
+    .print-header p { color: #555; font-size: .85rem; }
+    .print-btn { display: none !important; }
+    .result-box { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-header">
+  <h1>حاسبة التعويض عن تأخير تسليم الوحدة</h1>
+  <p>تاريخ الطباعة: <span id="printDate"></span></p>
+</div>
+
+<header>
+  <h1>🏠 حاسبة التعويض عن تأخير التسليم</h1>
+  <p>لمشاريع البيع على الخارطة — احسب التعويض المستحق عن تأخير تسليم الوحدة السكنية</p>
+</header>
+
+<main>
+  <section class="card no-print">
+    <h2>📝 بيانات الحساب</h2>
+    <div class="grid">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label for="value">قيمة الوحدة</label>
+        <div class="input-wrap">
+          <input type="number" id="value" min="0" step="any" placeholder="0" inputmode="decimal">
+          <span class="unit">ريال</span>
+        </div>
+        <div class="hint">غير شاملة ضريبة القيمة المضافة وغير شاملة تكلفة التمويل</div>
+      </div>
+
+      <div class="field">
+        <label for="pct">نسبة التعويض السنوية</label>
+        <div class="input-wrap">
+          <input type="number" id="pct" min="0" step="any" value="7" inputmode="decimal">
+          <span class="unit">٪</span>
+        </div>
+        <div class="hint">الأساس في العقد 7٪ سنويًا</div>
+      </div>
+
+      <div class="field">
+        <label for="contractDate">تاريخ التسليم في العقد</label>
+        <input type="date" id="contractDate">
+      </div>
+
+      <div class="field">
+        <label for="actualDate">تاريخ التسليم الفعلي</label>
+        <input type="date" id="actualDate">
+        <div class="hint">الافتراضي هو تاريخ اليوم ويمكنك تغييره</div>
+      </div>
+    </div>
+
+    <div class="error-note" id="errorNote"></div>
+    <div class="no-delay-note" id="noDelayNote">✔ لا يوجد تأخير — تاريخ التسليم الفعلي ليس بعد التسليم التعاقدي.</div>
+  </section>
+
+  <section class="card" id="resultBox">
+    <h2>💰 النتيجة</h2>
+
+    <div class="result-box" id="resultContent">
+      <div class="result-main">
+        <div class="stat">
+          <div class="num" id="delayDays">0</div>
+          <div class="lbl">يوم تأخير</div>
+        </div>
+        <div class="stat total">
+          <div class="num"><span id="totalComp">0</span> <small>ريال</small></div>
+          <div class="lbl">إجمالي التعويض المستحق</div>
+        </div>
+      </div>
+
+      <h2>📊 تفاصيل الحساب</h2>
+      <table class="details">
+        <tr>
+          <td>قيمة الوحدة</td>
+          <td><span id="dValue">—</span> ريال</td>
+        </tr>
+        <tr>
+          <td>نسبة التعويض السنوية</td>
+          <td><span id="dPct">—</span> ٪</td>
+        </tr>
+        <tr>
+          <td>التعويض السنوي
+            <span class="formula">قيمة الوحدة × النسبة</span>
+          </td>
+          <td><span id="dAnnual">—</span> ريال</td>
+        </tr>
+        <tr>
+          <td>التعويض اليومي
+            <span class="formula">التعويض السنوي ÷ 365</span>
+          </td>
+          <td><span id="dDaily">—</span> ريال</td>
+        </tr>
+        <tr>
+          <td>أيام التأخير
+            <span class="formula">التسليم الفعلي − التسليم التعاقدي</span>
+          </td>
+          <td><span id="dDays">—</span> يوم</td>
+        </tr>
+        <tr>
+          <td>تاريخ التسليم التعاقدي</td>
+          <td id="dContract">—</td>
+        </tr>
+        <tr>
+          <td>تاريخ التسليم الفعلي</td>
+          <td id="dActual">—</td>
+        </tr>
+        <tr>
+          <td><strong>التعويض الكلي</strong>
+            <span class="formula">التعويض اليومي × أيام التأخير</span>
+          </td>
+          <td><span id="dTotal">—</span> ريال</td>
+        </tr>
+      </table>
+
+      <button class="print-btn" onclick="window.print()">🖨️ طباعة النتيجة</button>
+    </div>
+
+    <p id="emptyMsg" style="color: var(--muted); font-size: .9rem;">
+      أدخل قيمة الوحدة وتاريخ التسليم في العقد لعرض النتيجة.
+    </p>
+  </section>
+</main>
+
+<footer>
+  هذه الحاسبة لأغراض التوضيح فقط ولا تُغني عن الرجوع إلى نصوص العقد.
+</footer>
+
+<script>
+  var valueEl = document.getElementById('value');
+  var pctEl = document.getElementById('pct');
+  var contractEl = document.getElementById('contractDate');
+  var actualEl = document.getElementById('actualDate');
+  var resultContent = document.getElementById('resultContent');
+  var emptyMsg = document.getElementById('emptyMsg');
+  var errorNote = document.getElementById('errorNote');
+  var noDelayNote = document.getElementById('noDelayNote');
+
+  // تعيين تاريخ اليوم كتاريخ تسليم فعلي افتراضي
+  var today = new Date();
+  var iso = today.getFullYear() + '-' +
+    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    String(today.getDate()).padStart(2, '0');
+  actualEl.value = iso;
+
+  // تاريخ الطباعة
+  document.getElementById('printDate').textContent = fmtDate(today);
+
+  function toUTC(dateStr) {
+    var p = dateStr.split('-');
+    return Date.UTC(+p[0], +p[1] - 1, +p[2]);
+  }
+
+  function fmtNum(n, decimals) {
+    return n.toLocaleString('en-US', {
+      minimumFractionDigits: decimals || 0,
+      maximumFractionDigits: decimals === undefined ? 2 : decimals
+    });
+  }
+
+  function fmtDate(d) {
+    if (typeof d === 'string') d = new Date(d + 'T00:00:00');
+    return d.toLocaleDateString('ar-SA-u-ca-gregory', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  function calc() {
+    var value = parseFloat(valueEl.value);
+    var pct = parseFloat(pctEl.value);
+    var contract = contractEl.value;
+    var actual = actualEl.value;
+    var error = '';
+
+    errorNote.style.display = 'none';
+    noDelayNote.style.display = 'none';
+
+    if (valueEl.value !== '' && (isNaN(value) || value < 0)) error = 'يرجى إدخال قيمة وحدة صحيحة.';
+    if (pctEl.value !== '' && (isNaN(pct) || pct < 0)) error = 'يرجى إدخال نسبة تعويض صحيحة.';
+    if (!contract || !actual) {
+      if (!contract && value > 0) error = 'يرجى اختيار تاريخ التسليم في العقد.';
+    } else if (toUTC(actual) < toUTC(contract)) {
+      noDelayNote.style.display = 'block';
+    }
+
+    if (error) {
+      errorNote.textContent = error;
+      errorNote.style.display = 'block';
+    }
+
+    var valid = !isNaN(value) && value > 0 && !isNaN(pct) && pct > 0 && contract && actual;
+
+    if (!valid) {
+      resultContent.style.display = 'none';
+      emptyMsg.style.display = 'block';
+      return;
+    }
+
+    var annual = value * (pct / 100);
+    var daily = annual / 365;
+    var delayDays = Math.max(0, Math.round((toUTC(actual) - toUTC(contract)) / 86400000));
+    var total = daily * delayDays;
+
+    document.getElementById('delayDays').textContent = fmtNum(delayDays);
+    document.getElementById('totalComp').textContent = fmtNum(total);
+    document.getElementById('dValue').textContent = fmtNum(value);
+    document.getElementById('dPct').textContent = fmtNum(pct);
+    document.getElementById('dAnnual').textContent = fmtNum(annual);
+    document.getElementById('dDaily').textContent = fmtNum(daily, 2);
+    document.getElementById('dDays').textContent = fmtNum(delayDays);
+    document.getElementById('dContract').textContent = fmtDate(contract);
+    document.getElementById('dActual').textContent = fmtDate(actual);
+    document.getElementById('dTotal').textContent = fmtNum(total);
+
+    resultContent.style.display = 'block';
+    emptyMsg.style.display = 'none';
+  }
+
+  valueEl.addEventListener('input', calc);
+  pctEl.addEventListener('input', calc);
+  contractEl.addEventListener('change', calc);
+  actualEl.addEventListener('change', calc);
+
+  calc();
+</script>
+</body>
+</html>
